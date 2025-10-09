@@ -1,0 +1,135 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id            String       @id @default(cuid())
+  name          String?
+  email         String       @unique
+  image         String?
+  password      String?
+  bio           String?
+  isPublic      Boolean      @default(false)
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
+  experiences   Experience[]
+  reflections   Reflection[]
+  links         Link[]
+
+  @@map("users")
+}
+
+model Experience {
+  id              String           @id @default(cuid())
+  title           String
+  content         String
+  date            DateTime         @default(now())
+  category        Category
+  isPublic        Boolean          @default(false)
+  tags            String[]
+  mood            String?
+  location        String?
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  userId          String
+  experienceLinks ExperienceLink[] @relation("ExperienceToLinks")
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  reflections     Reflection[]
+
+  @@index([userId, date])
+  @@index([category])
+  @@index([isPublic])
+  @@map("experiences")
+}
+
+model Reflection {
+  id           String     @id @default(cuid())
+  content      String
+  feeling      String?
+  createdAt    DateTime   @default(now())
+  updatedAt    DateTime   @updatedAt
+  experienceId String
+  userId       String
+  experience   Experience @relation(fields: [experienceId], references: [id], onDelete: Cascade)
+  user         User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([experienceId])
+  @@index([userId])
+  @@map("reflections")
+}
+
+model Link {
+  id              String           @id(map: "chains_pkey") @default(cuid())
+  name            String
+  description     String?
+  color           String           @default("#8b5cf6")
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  userId          String
+  experienceLinks ExperienceLink[] @relation("LinkToLinks")
+  user            User             @relation(fields: [userId], references: [id], onDelete: Cascade, map: "chains_userId_fkey")
+
+  @@index([userId])
+  @@map("links")
+}
+
+model ExperienceLink {
+  id           String     @id(map: "experience_chains_pkey") @default(cuid())
+  order        Int
+  experienceId String
+  linkId       String
+  createdAt    DateTime   @default(now())
+  link         Link       @relation("LinkToLinks", fields: [linkId], references: [id], onDelete: Cascade, map: "experience_chains_chainId_fkey")
+  experience   Experience @relation("ExperienceToLinks", fields: [experienceId], references: [id], onDelete: Cascade, map: "experience_chains_experienceId_fkey")
+
+  @@unique([experienceId, linkId], map: "experience_chains_experienceId_chainId_key")
+  @@index([linkId])
+  @@index([experienceId])
+  @@map("experience_links")
+}
+
+model BlacklistedToken {
+  id        String   @id @default(cuid())
+  jti       String   @unique
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+
+  @@index([expiresAt])
+  @@map("blacklisted_tokens")
+}
+
+// Category Enum - Updated to match constants.js
+enum Category {
+  // Daily & Personal
+  DAILY_JOURNAL
+  SOMETHING_NEW
+  PERSONAL_GROWTH
+  DREAMS_GOALS
+  
+  // Relationships
+  RELATIONSHIPS
+  FAMILY
+  
+  // Activities & Hobbies
+  HOBBIES
+  SPORTS
+  
+  // Adventure & Nature
+  TRAVEL_ADVENTURE
+  NATURE_OUTDOORS
+  CHALLENGES
+  
+  // Professional & Education
+  WORK_CAREER
+  EDUCATION
+  ACHIEVEMENTS
+  
+  // Health & Other
+  HEALTH_WELLNESS
+  OTHER
+}
