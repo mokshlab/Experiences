@@ -99,7 +99,6 @@ export default function SignUpPage() {
                   placeholder="John Doe"
                 />
                 </div>
-              </main>
             </div>
 
             {/* Email Field */}
@@ -189,6 +188,7 @@ export default function SignUpPage() {
             </Link>
           </div>
         </div>
+      </main>
       </div>
     </div>
   )

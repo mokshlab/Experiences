@@ -82,7 +82,6 @@ export default function SignInPage() {
                   placeholder="you@example.com"
                 />
                 </div>
-              </main>
             </div>
 
             {/* Password Field */}
@@ -131,6 +130,7 @@ export default function SignInPage() {
             </Link>
           </div>
         </div>
+      </main>
       </div>
     </div>
   )
