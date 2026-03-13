@@ -6,6 +6,9 @@
 :root {
   --background: #ffffff;
   --foreground: #171717;
+  --accent-500: #7c3aed; /* purple-600 */
+  --accent-400: #ec4899; /* pink-500 */
+  --vignette: radial-gradient(ellipse at center, rgba(0,0,0,0.25), rgba(0,0,0,0.6));
 }
 
 @theme inline {
@@ -19,6 +22,9 @@
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --accent-500: #7c3aed;
+    --accent-400: #ec4899;
+    --vignette: radial-gradient(ellipse at center, rgba(0,0,0,0.35), rgba(0,0,0,0.75));
   }
 }
 
@@ -26,6 +32,49 @@ body {
   background: var(--background);
   color: var(--foreground);
   font-family: var(--font-sans, 'Inter', system-ui, -apple-system, sans-serif);
+}
+
+/* Accent and vignette helpers for auth cards */
+.vignette {
+  position: absolute;
+  inset: 0;
+  background: var(--vignette);
+  pointer-events: none;
+  z-index: 0;
+  border-radius: inherit;
+}
+
+.accent-blur {
+  position: absolute;
+  width: 420px;
+  height: 220px;
+  left: 50%;
+  top: 8%;
+  transform: translateX(-50%);
+  background: linear-gradient(135deg, rgba(124,58,237,0.26) 0%, rgba(236,72,153,0.22) 60%);
+  filter: blur(40px);
+  opacity: 0.6;
+  border-radius: 16px;
+  z-index: 0;
+  pointer-events: none;
+}
+
+/* Utility to ensure card content sits above accents */
+.card-foreground {
+  position: relative;
+  z-index: 10;
+}
+
+/* Improve visible focus for keyboard users */
+:focus-visible {
+  outline: 3px solid rgba(124,58,237,0.18);
+  outline-offset: 2px;
+}
+
+/* High-contrast helper for buttons (fallback) */
+.high-contrast {
+  color: #ffffff;
+  text-shadow: 0 1px 0 rgba(0,0,0,0.35);
 }
 
 @layer utilities {
