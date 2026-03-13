@@ -35,8 +35,9 @@ export default function SignInPage() {
   }
 
   return (
-    <div className="flex min-h-screen items-center justify-center bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 dark:from-zinc-900 dark:via-purple-900/10 dark:to-zinc-900 px-4 py-8">
+    <div className="flex min-h-screen items-center justify-center bg-[radial-gradient(ellipse_at_60%_40%,_#f3e8ff_70%,_#e0e7ff_100%)] dark:bg-[radial-gradient(ellipse_at_60%_40%,_#181926_70%,_#101014_100%)] px-4 py-8">
       <div className="w-full max-w-md">
+        <main role="main" aria-label="Sign in" className="mx-auto">
         {/* Logo */}
         <div className="mb-8 text-center">
           <Link href="/">
@@ -50,11 +51,13 @@ export default function SignInPage() {
         </div>
 
         {/* Sign In Form */}
-        <div className="rounded-2xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 shadow-xl">
-          <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">Sign In</h2>
+        <div className="relative">
+          <div className="accent-blur hidden sm:block" aria-hidden="true" />
+          <div className="rounded-2xl bg-white dark:bg-zinc-900 border border-gray-200 dark:border-zinc-800 p-8 shadow-xl card-foreground">
+            <h2 className="text-2xl font-bold text-gray-900 dark:text-white mb-6 text-center">Sign In</h2>
           <form onSubmit={handleSubmit} className="space-y-5">{/* Error Message */}
             {error && (
-              <div className="flex items-center gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">
+              <div role="alert" aria-live="assertive" className="flex items-center gap-2 rounded-lg bg-red-50 dark:bg-red-900/20 p-3 text-sm text-red-600 dark:text-red-400 border border-red-200 dark:border-red-800">
                 <FiAlertCircle className="h-5 w-5 flex-shrink-0" />
                 <span>{error}</span>
               </div>
@@ -75,9 +78,11 @@ export default function SignInPage() {
                   value={formData.email}
                   onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                   className="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 py-2.5 pl-10 pr-4 text-gray-900 dark:text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-colors"
+                  aria-invalid={!!error}
                   placeholder="you@example.com"
                 />
-              </div>
+                </div>
+              </main>
             </div>
 
             {/* Password Field */}
@@ -95,6 +100,7 @@ export default function SignInPage() {
                   value={formData.password}
                   onChange={(e) => setFormData({ ...formData, password: e.target.value })}
                   className="w-full rounded-lg border border-gray-300 dark:border-zinc-700 bg-white dark:bg-zinc-800 py-2.5 pl-10 pr-4 text-gray-900 dark:text-white focus:border-purple-500 focus:outline-none focus:ring-2 focus:ring-purple-500/20 transition-colors"
+                  aria-invalid={!!error}
                   placeholder="Enter your password"
                 />
               </div>
