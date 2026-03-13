@@ -10,26 +10,63 @@ const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:400
 /**
  * Make authenticated request to backend from server component
  * Forwards the authentication cookie from client to backend
+ * Handles 401s by attempting to refresh the token.
  */
-async function fetchFromBackend(endpoint, options = {}) {
+async function fetchFromBackend(endpoint, options = {}, isRetry = false) {
   const cookieStore = await cookies()
   const token = cookieStore.get('token')
+  const refreshToken = cookieStore.get('refreshToken')
 
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
   }
 
-  // Forward authentication cookie to backend
-  if (token) {
-    headers['Cookie'] = `token=${token.value}`
+  // Forward authentication cookies to backend
+  let cookieString = ''
+  if (token) cookieString += `token=${token.value}; `
+  if (refreshToken) cookieString += `refreshToken=${refreshToken.value}; `
+  
+  if (cookieString) {
+    headers['Cookie'] = cookieString.trim()
   }
 
-  const response = await fetch(`${API_BASE_URL}${endpoint}`, {
+  let response = await fetch(`${API_BASE_URL}${endpoint}`, {
     ...options,
     headers,
     credentials: 'include',
   })
+
+  // If 401, try to refresh
+  if (response.status === 401 && !isRetry && endpoint !== '/auth/refresh') {
+    if (refreshToken) {
+      // Attempt to refresh
+      const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
+        method: 'POST',
+        headers: {
+          'Cookie': `refreshToken=${refreshToken.value}`
+        }
+      })
+
+      if (refreshRes.ok) {
+        // Read the new token from the response headers
+        const setCookieHeader = refreshRes.headers.get('set-cookie')
+        if (setCookieHeader) {
+          // In Next.js App Router server components, we can't easily mutate the response headers directly
+          // to send the cookie back to the browser without middleware. But the server can use it for retrying.
+          
+          // Retry original request with the new cookie from the refresh endpoint
+          headers['Cookie'] = setCookieHeader
+
+          response = await fetch(`${API_BASE_URL}${endpoint}`, {
+            ...options,
+            headers,
+            credentials: 'include',
+          })
+        }
+      }
+    }
+  }
 
   if (!response.ok) {
     // Return null for 404s to allow components to handle not-found UI

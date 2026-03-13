@@ -1,6 +1,6 @@
-﻿import express from 'express'
+import express from 'express'
 import { authLimiter } from '../middleware/rateLimiter.js'
-import { register, login, logout, getMe } from '../controllers/auth.controller.js'
+import { register, login, logout, getMe, refresh } from '../controllers/auth.controller.js'
 import { authenticate } from '../middleware/auth.middleware.js'
 import validate from '../middleware/validate.js'
 import { registerSchema, loginSchema } from '../schemas/user.schema.js'
@@ -13,6 +13,7 @@ const rateLimiter = process.env.NODE_ENV === 'production' ? authLimiter : (req, 
 router.post('/register', rateLimiter, validate(registerSchema), register)
 router.post('/login', rateLimiter, validate(loginSchema), login)
 router.post('/logout', logout)
+router.post('/refresh', refresh)
 router.get('/me', authenticate, getMe)
 
 export default router

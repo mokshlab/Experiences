@@ -38,6 +38,9 @@ const corsOptions = createCorsOptions(env)
 const app = express()
 const PORT = env.PORT
 
+// Trust proxy is strictly required for secure cookies to work behind deploy proxies
+app.set('trust proxy', 1)
+
 // Middleware
 app.use(securityHeaders)
 app.use(cors(corsOptions))
@@ -82,25 +85,38 @@ app.use('/api/v1/analytics', analyticsRoutes)
 // Error handling
 app.use(errorHandler)
 
-const server = app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT} [${env.NODE_ENV}]`)
-})
+let server
+if (env.NODE_ENV !== 'test') {
+  server = app.listen(PORT, () => {
+    console.log(`Server running on port ${PORT} [${env.NODE_ENV}]`)
+  })
+}
+
+export default app
 
 // Handle graceful shutdown
 process.on('SIGTERM', () => {
   console.log('SIGTERM received, closing server gracefully...')
-  server.close(() => {
-    console.log('Server closed')
+  if (server) {
+    server.close(() => {
+      console.log('Server closed')
+      process.exit(0)
+    })
+  } else {
     process.exit(0)
-  })
+  }
 })
 
 process.on('SIGINT', () => {
   console.log('\nSIGINT received, closing server gracefully...')
-  server.close(() => {
-    console.log('Server closed')
+  if (server) {
+    server.close(() => {
+      console.log('Server closed')
+      process.exit(0)
+    })
+  } else {
     process.exit(0)
-  })
+  }
 })
 
 // Catch unhandled promise rejections (prevent server crashes)

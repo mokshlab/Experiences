@@ -3,8 +3,9 @@ import { API_BASE_URL } from './constants'
 /**
  * Base fetch wrapper — sends credentials (httpOnly cookies)
  * and handles JSON parsing / error normalization.
+ * Includes interceptor logic for 401 Unauthorized to automatically refresh tokens.
  */
-async function apiFetch(url, options = {}) {
+async function apiFetch(url, options = {}, isRetry = false) {
   try {
     const response = await fetch(url, {
       credentials: 'include',
@@ -15,9 +16,26 @@ async function apiFetch(url, options = {}) {
       ...options,
     })
 
-    const data = await response.json()
+    const data = await response.json().catch(() => ({}))
 
     if (!response.ok) {
+      // Intercept 401s and try to refresh token (unless this is already a retry or the refresh endpoint itself)
+      if (response.status === 401 && !isRetry && !url.includes('/auth/refresh') && !url.includes('/auth/login')) {
+        try {
+          const refreshRes = await fetch(`${API_BASE_URL}/auth/refresh`, {
+            method: 'POST',
+            credentials: 'include',
+          })
+          
+          if (refreshRes.ok) {
+            // Refresh succeeded, retry the original request
+            return apiFetch(url, options, true)
+          }
+        } catch (refreshErr) {
+          console.error('Refresh token failed:', refreshErr)
+        }
+      }
+
       // Create error with clean message for user display
       const error = new Error(data.error || data.message || 'Request failed')
       error.status = response.status

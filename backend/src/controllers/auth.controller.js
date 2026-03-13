@@ -1,4 +1,4 @@
-﻿import bcrypt from 'bcryptjs'
+import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken'
 import prisma from '../utils/prisma.js'
 
@@ -35,13 +35,28 @@ export const register = async (req, res, next) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
     )
 
+    const refreshToken = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' }
+    )
+
     const { password: _, ...userWithoutPassword } = user
 
-    res.cookie('token', token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+    }
+
+    res.cookie('token', token, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000, // 15 mins
+    })
+
+    res.cookie('refreshToken', refreshToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     })
 
     res.status(201).json({
@@ -86,13 +101,28 @@ export const login = async (req, res, next) => {
       { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
     )
 
+    const refreshToken = jwt.sign(
+      { userId: user.id },
+      process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET,
+      { expiresIn: process.env.JWT_REFRESH_EXPIRES_IN || '7d' }
+    )
+
     const { password: _, ...userWithoutPassword } = user
 
-    res.cookie('token', token, {
+    const cookieOptions = {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
-      maxAge: 7 * 24 * 60 * 60 * 1000,
+    }
+
+    res.cookie('token', token, {
+      ...cookieOptions,
+      maxAge: 15 * 60 * 1000, // 15 mins
+    })
+
+    res.cookie('refreshToken', refreshToken, {
+      ...cookieOptions,
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
     })
 
     res.json({
@@ -113,6 +143,12 @@ export const logout = async (req, res) => {
   }
   
   res.clearCookie('token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+  })
+  
+  res.clearCookie('refreshToken', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
@@ -145,6 +181,62 @@ export const getMe = async (req, res, next) => {
     }
 
     res.json({ user })
+  } catch (error) {
+    next(error)
+  }
+}
+
+/**
+ * POST /auth/refresh
+ * Uses the refreshToken cookie to issue a new access token
+ */
+export const refresh = async (req, res, next) => {
+  try {
+    const refreshToken = req.cookies?.refreshToken
+
+    if (!refreshToken) {
+      return res.status(401).json({ message: 'Refresh token missing' })
+    }
+
+    try {
+      const decoded = jwt.verify(
+        refreshToken, 
+        process.env.JWT_REFRESH_SECRET || process.env.JWT_SECRET
+      )
+
+      const user = await prisma.user.findUnique({
+        where: { id: decoded.userId }
+      })
+
+      if (!user) {
+        return res.status(401).json({ message: 'User not found' })
+      }
+
+      // Issue new access token
+      const newToken = jwt.sign(
+        { 
+          userId: user.id,
+          jti: `${user.id}-${Date.now()}`,
+          iat: Math.floor(Date.now() / 1000),
+        },
+        process.env.JWT_SECRET,
+        { expiresIn: process.env.JWT_EXPIRES_IN || '15m' }
+      )
+
+      res.cookie('token', newToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        maxAge: 15 * 60 * 1000,
+      })
+
+      res.json({ message: 'Token refreshed successfully' })
+    } catch (error) {
+      // If refresh token is invalid/expired, clear it
+      res.clearCookie('token')
+      res.clearCookie('refreshToken')
+      return res.status(401).json({ message: 'Invalid or expired refresh token' })
+    }
   } catch (error) {
     next(error)
   }
