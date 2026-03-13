@@ -3,9 +3,9 @@
 const globalForPrisma = global
 
 export const prisma = globalForPrisma.prisma || new PrismaClient({
-  // Log queries in development for debugging
-  log: process.env.NODE_ENV === 'development' 
-    ? ['query', 'error', 'warn'] 
+  datasourceUrl: process.env.DATABASE_URL,   // ✅ new required option
+  log: process.env.NODE_ENV === 'development'
+    ? ['query', 'error', 'warn']
     : ['error'],
 })
 
