@@ -38,8 +38,38 @@ const corsOptions = createCorsOptions(env)
 const app = express()
 const PORT = env.PORT
 
-// Trust proxy is strictly required for secure cookies to work behind deploy proxies
-app.set('trust proxy', 1)
+// Configure trust proxy. Prefer explicit env `TRUST_PROXY` when provided (e.g., '1' for single proxy).
+// This ensures `req.secure` and cookie `secure` behavior are accurate behind load balancers.
+const trustProxyValue = process.env.TRUST_PROXY ?? '1'
+app.set('trust proxy', trustProxyValue)
+
+// Startup checks for common deployment misconfigurations
+try {
+  // If running in production, warn if the frontend API origin isn't included in ALLOWED_ORIGINS
+  const frontendOrigin = process.env.NEXT_PUBLIC_API_URL
+  if (env.NODE_ENV === 'production') {
+    if (!frontendOrigin) {
+      console.warn('[startup] WARNING: NEXT_PUBLIC_API_URL is not set; ensure frontend origin is configured in production environment variables.')
+    } else if (!env.ALLOWED_ORIGINS.includes(frontendOrigin)) {
+      console.warn(`[startup] WARNING: FRONTEND origin (${frontendOrigin}) is not present in ALLOWED_ORIGINS. CORS requests from the frontend may be blocked.`)
+    }
+  }
+} catch (e) {
+  console.warn('[startup] Warning during environment checks:', e.message || e)
+}
+
+// Quick DB sanity check: ensure expected tables/models exist (helps catch missing migrations)
+import prisma from './utils/prisma.js'
+;(async () => {
+  try {
+    // Attempt a lightweight query on BlacklistedToken to confirm migration applied
+    await prisma.blacklistedToken.findFirst({ where: {}, take: 1 })
+  } catch (dbErr) {
+    console.warn('[startup] Database schema check failed. This often indicates pending migrations or an incompatible schema.')
+    console.warn('[startup] Run `npx prisma migrate deploy` against your production database and verify migrations have been applied.')
+    console.warn('[startup] DB error:', dbErr.message || dbErr)
+  }
+})()
 
 // Middleware
 app.use(securityHeaders)
