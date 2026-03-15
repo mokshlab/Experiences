@@ -1,12 +1,31 @@
-'use client'
+ 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { FiZap, FiGrid, FiShare2, FiGitBranch } from 'react-icons/fi'
+import PageHeader from '@/components/layout/PageHeader'
 import { LinksList, TimelineRiverFlow, ForceGraph } from '@/components/features/links'
 
 export default function LinksPageClient({ links }) {
   const [viewMode, setViewMode] = useState('grid') // 'grid', 'river', or 'graph'
+  const [linksState, setLinksState] = useState(Array.isArray(links) ? links : [])
+
+  // Refresh links client-side on mount to ensure newly-created links show immediately
+  useEffect(() => {
+    let mounted = true
+    async function refresh() {
+      try {
+        const fresh = await import('@/lib/api-client').then(m => m.apiClient.links.getAll())
+        if (mounted && Array.isArray(fresh)) {
+          setLinksState(fresh)
+        }
+      } catch (err) {
+        // ignore — keep server-provided links
+      }
+    }
+    refresh()
+    return () => { mounted = false }
+  }, [])
 
   return (
     <div className="relative">
@@ -15,18 +34,7 @@ export default function LinksPageClient({ links }) {
         <div className="relative mb-6 sm:mb-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-start justify-between gap-4 sm:gap-6 mb-6">
             <div className="flex items-center gap-3 sm:gap-4">
-              <div className="relative">
-                <span className="text-4xl sm:text-5xl">🧠</span>
-                <div className="absolute -inset-2 bg-gradient-to-r from-pink-500 via-purple-500 to-blue-500 rounded-full blur-xl opacity-50 animate-pulse" />
-              </div>
-              <div>
-                <h1 className="text-3xl sm:text-4xl lg:text-5xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-1 sm:mb-2">
-                  Neural Pathways
-                </h1>
-                <p className="text-gray-600 dark:text-gray-300 text-sm sm:text-base lg:text-lg">
-                  Connect experiences like neurons - build your memory network
-                </p>
-              </div>
+              <PageHeader icon={<FiGitBranch className="h-5 w-5" />} title="Neural Pathways" subtitle="Connect experiences like neurons - build your memory network" />
             </div>
 
             {/* Create New Link Button */}
@@ -41,7 +49,7 @@ export default function LinksPageClient({ links }) {
           </div>
 
           {/* View Controls */}
-          {links.length > 0 && (
+          {linksState.length > 0 && (
             <div className="flex items-center justify-between gap-4 mb-6">
               {/* View Mode Toggle */}
               <div className="inline-flex rounded-xl bg-gray-100 dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10 p-1">
@@ -87,18 +95,22 @@ export default function LinksPageClient({ links }) {
         </div>
 
         {/* Content */}
-        {links.length === 0 ? (
-          <div className="relative bg-gray-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl p-8 sm:p-12 text-center border border-gray-200 dark:border-white/10 overflow-hidden">
+        {linksState.length === 0 ? (
+          <div className="relative links-hero links-empty rounded-2xl p-8 sm:p-12 text-center border border-gray-200 dark:border-white/10 overflow-hidden">
             {/* Animated background */}
-            <div className="absolute inset-0 overflow-hidden opacity-20">
+            <div className="absolute inset-0 overflow-hidden opacity-20 hero-bg">
               <div className="absolute top-0 left-1/4 w-32 h-32 bg-pink-500 rounded-full blur-2xl animate-pulse" />
               <div className="absolute bottom-0 right-1/4 w-32 h-32 bg-blue-500 rounded-full blur-2xl animate-pulse delay-1000" />
             </div>
             
-            <div className="relative z-10">
-              <span className="text-5xl sm:text-7xl block mb-4 sm:mb-6 animate-bounce">🧠</span>
+              <div className="relative z-10">
+              {/* Dynamic brain icon - subtle floating animation to draw attention */}
+              <div className="relative mx-auto mb-4 w-fit">
+                <span className="text-6xl sm:text-7xl block mb-0 brain-float" aria-hidden="true">🧠</span>
+                <div className="absolute -inset-3 rounded-full bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 opacity-20 blur-2xl" aria-hidden="true" />
+              </div>
               <h2 className="text-2xl sm:text-3xl font-bold bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 bg-clip-text text-transparent mb-3">
-                No Neural Pathways Yet
+                No Memory Links Yet
               </h2>
               <p className="text-gray-600 dark:text-gray-300 mb-6 sm:mb-8 max-w-2xl mx-auto text-base sm:text-lg leading-relaxed px-4">
                 Create your first neural pathway to connect related experiences together. 
@@ -138,15 +150,15 @@ export default function LinksPageClient({ links }) {
           </div>
         ) : (
           <>
-            {viewMode === 'grid' && <LinksList links={links} />}
+              {viewMode === 'grid' && <LinksList links={linksState} />}
             {viewMode === 'river' && (
               <div className="mb-8">
-                <TimelineRiverFlow links={links} />
+                <TimelineRiverFlow links={linksState} />
               </div>
             )}
             {viewMode === 'graph' && (
               <div className="mb-8">
-                <ForceGraph links={links} />
+                <ForceGraph links={linksState} />
               </div>
             )}
           </>

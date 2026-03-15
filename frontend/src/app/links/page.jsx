@@ -23,7 +23,7 @@ export default async function LinksPage() {
   const categoryStats = getCategoryStats(experiences)
 
   return (
-    <AppLayout categoryStats={categoryStats}>
+    <AppLayout categoryStats={categoryStats} className="bg-gray-50 dark:bg-zinc-950">
       <LinksPageClient links={links} />
     </AppLayout>
   )

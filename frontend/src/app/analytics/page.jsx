@@ -3,6 +3,7 @@ import { getCurrentUser, getAnalytics, getExperiences, getCategoryStats } from '
 import { AppLayout } from '@/components/layout'
 import AnalyticsCharts from './AnalyticsCharts'
 import { FiBarChart2 } from 'react-icons/fi'
+import PageHeader from '@/components/layout/PageHeader'
 
 export const dynamic = 'force-dynamic'
 
@@ -24,22 +25,7 @@ export default async function AnalyticsPage() {
   return (
     <AppLayout categoryStats={categoryStats} className="bg-gray-50 dark:bg-zinc-950">
       <div className="container mx-auto max-w-6xl px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
-        {/* Header */}
-        <div className="mb-8">
-          <div className="flex items-center gap-3 mb-2">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <FiBarChart2 className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white">
-                Analytics
-              </h1>
-              <p className="text-sm text-gray-500 dark:text-gray-400">
-                Your journey, visualized
-              </p>
-            </div>
-          </div>
-        </div>
+        <PageHeader icon={<FiBarChart2 className="h-5 w-5" />} title="Analytics" subtitle="Your journey, visualized" />
 
         {/* Charts */}
         <AnalyticsCharts analytics={analytics} />
