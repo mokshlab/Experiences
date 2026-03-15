@@ -28,7 +28,9 @@ const nextConfig = {
           },
           (() => {
             const isDev = process.env.NODE_ENV === 'development'
-            const scriptSrc = isDev ? "script-src 'self' 'unsafe-eval' 'unsafe-inline'" : "script-src 'self'"
+            // Allow inline scripts in production temporarily to prevent CSP blocking
+            // (short-term fix; replace with nonces/hashes or external scripts for production hardening)
+            const scriptSrc = isDev ? "script-src 'self' 'unsafe-eval' 'unsafe-inline'" : "script-src 'self' 'unsafe-inline'"
             const styleSrc = isDev ? "style-src 'self' 'unsafe-inline'" : "style-src 'self'"
             return {
               // Content Security Policy - Prevents XSS attacks
