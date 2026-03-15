@@ -146,10 +146,10 @@ export default function ProfileContent({ user, experiencesCount, linksCount }) {
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8">
       {/* Header */}
       <div className="mb-8">
-        <h1 className="text-3xl sm:text-4xl font-bold bg-gradient-to-r from-purple-600 via-pink-600 to-purple-600 bg-clip-text text-transparent mb-2">
+        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-white mb-2">
           Hey {user.name?.split(' ')[0] || 'Explorer'}!
         </h1>
-        <p className="text-gray-600 dark:text-gray-400 font-medium">
+        <p className="mt-1 text-sm sm:text-base text-gray-600 dark:text-gray-400">
           {getMotivationalMessage()}
         </p>
       </div>
@@ -449,12 +449,21 @@ export default function ProfileContent({ user, experiencesCount, linksCount }) {
         <div className="space-y-6">
           {/* Metrics */}
           <div className="bg-white dark:bg-zinc-900 rounded-2xl border border-gray-200 dark:border-zinc-800 p-6 shadow-lg">
-            <div className="mb-5">
+              <div className="mb-5">
               <div className="flex items-center justify-between mb-1">
-                <h3 className="text-xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+                <h3 className="text-xl font-bold text-gray-900 dark:text-white">
                   Your Impact
                 </h3>
-                <span className="text-2xl">🚀</span>
+                <span className="sr-only">Rocket animation</span>
+                <span aria-hidden="true" className="rocket-fly w-6 h-6">
+                  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-6 h-6">
+                    <path d="M12 2c0 0-1 2-3 4s-4 3-4 3 1 3 3 5 5 3 5 3 1-3 3-5 4-3 4-3-2-2-4-3S12 2 12 2z" fill="currentColor" className="text-pink-500 dark:text-pink-400"/>
+                    <path d="M7 17c1 1 3 1 4 0" stroke="currentColor" strokeWidth="1.2" strokeLinecap="round" strokeLinejoin="round" className="text-purple-600 dark:text-purple-400"/>
+                    <g className="rocket-flame">
+                      <path d="M5 20c1-1 2-1 3 0s2 1 3 0" fill="currentColor" className="text-orange-400"/>
+                    </g>
+                  </svg>
+                </span>
               </div>
               <p className="text-xs text-gray-500 dark:text-gray-400">
                 Every moment counts
