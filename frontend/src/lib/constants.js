@@ -89,4 +89,9 @@ export const MOOD_EMOJIS = MOODS.reduce((acc, mood) => {
 }, {})
 
 // API
-export const API_BASE_URL = `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/v1`
+// Use an absolute backend URL on the server (SSR) but a relative path on the client
+// so browser requests go to the Next.js origin and can include HttpOnly cookies.
+const isServer = typeof window === 'undefined'
+export const API_BASE_URL = isServer
+  ? `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/v1`
+  : '/api/v1'
