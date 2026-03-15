@@ -60,7 +60,9 @@ export default function LinkForm({ link = null }) {
         toast.success('Neural pathway created!')
       }
 
-      router.push('/links')
+      // Navigate to links and ensure server data is revalidated.
+      // Await push so that refresh runs against the new route.
+      await router.push('/links')
       router.refresh()
     } catch (error) {
       console.error('Error saving link:', error)

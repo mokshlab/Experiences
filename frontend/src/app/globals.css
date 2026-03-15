@@ -59,6 +59,97 @@ body {
   pointer-events: none;
 }
 
+/* Memory Links specific helpers */
+.links-hero {
+  border-radius: 16px;
+  position: relative;
+  overflow: hidden;
+}
+
+.links-hero .hero-bg {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background: linear-gradient(90deg, rgba(236,72,153,0.06), rgba(124,58,237,0.04));
+}
+
+.links-empty {
+  background: rgba(255,255,255,0.6);
+  backdrop-filter: blur(6px) saturate(120%) contrast(0.95);
+}
+
+@media (prefers-color-scheme: dark) {
+  .links-empty {
+    background: rgba(10,10,10,0.36);
+    backdrop-filter: blur(6px) saturate(140%) contrast(1.04);
+  }
+
+  .links-hero .hero-bg {
+    background: linear-gradient(90deg, rgba(236,72,153,0.08), rgba(124,58,237,0.06));
+  }
+
+  /* Link card overlay stronger in dark to show color */
+  .link-card-overlay {
+    opacity: 0.08;
+    mix-blend-mode: screen;
+  }
+}
+
+@media (prefers-color-scheme: light) {
+  .link-card-overlay {
+    opacity: 0.045;
+  }
+}
+
+/* Decorative floating brain animation (reduced for accessibility) */
+.brain-float {
+  display: inline-block;
+  animation: float 3.6s ease-in-out infinite;
+}
+@keyframes float {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-8px) rotate(-4deg); }
+  100% { transform: translateY(0); }
+}
+
+/* Rocket animation for profile impact */
+.rocket-fly {
+  display: inline-block;
+  color: #ef4444; /* fallback color */
+  transform-origin: center bottom;
+  animation: rocket-bob 3.2s ease-in-out infinite;
+}
+.rocket-flame {
+  transform-origin: center;
+  animation: flame-pulse 420ms ease-in-out infinite;
+  opacity: 0.95;
+}
+@keyframes rocket-bob {
+  0% { transform: translateY(0) rotate(0deg); }
+  35% { transform: translateY(-6px) rotate(-4deg); }
+  70% { transform: translateY(-3px) rotate(3deg); }
+  100% { transform: translateY(0) rotate(0deg); }
+}
+@keyframes flame-pulse {
+  0% { transform: scaleY(0.9) scaleX(1); opacity: 0.9; }
+  50% { transform: scaleY(1.15) scaleX(0.95); opacity: 1; }
+  100% { transform: scaleY(0.9) scaleX(1); opacity: 0.9; }
+}
+
+/* Color stripe helper for links list */
+.color-stripe {
+  mix-blend-mode: normal;
+}
+
+@media (prefers-color-scheme: dark) {
+  .color-stripe { opacity: 0.95; }
+}
+
+@media (prefers-color-scheme: light) {
+  .color-stripe { opacity: 0.85; }
+}
+
 /* Utility to ensure card content sits above accents */
 .card-foreground {
   position: relative;
