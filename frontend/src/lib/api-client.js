@@ -1,11 +1,6 @@
 import { API_BASE_URL } from './constants'
 
-/**
- * Base fetch wrapper — sends credentials (httpOnly cookies)
- * and handles JSON parsing / error normalization.
- * Includes interceptor logic for 401 Unauthorized to automatically refresh tokens.
- */
-async function apiFetch(url, options = {}, isRetry = false) {
+export async function apiFetch(url, options = {}, isRetry = false) {
   try {
     const response = await fetch(url, {
       credentials: 'include',
@@ -52,6 +47,13 @@ async function apiFetch(url, options = {}, isRetry = false) {
     throw enhancedError
   }
 }
+
+/**
+ * Base fetch wrapper — sends credentials (httpOnly cookies)
+ * and handles JSON parsing / error normalization.
+ * Includes interceptor logic for 401 Unauthorized to automatically refresh tokens.
+ */
+// (apiFetch exported above)
 
 /**
  * API client object with methods for different resources
