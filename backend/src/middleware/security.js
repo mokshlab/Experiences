@@ -7,17 +7,29 @@ import helmet from 'helmet'
  */
 export const createSecurityHeaders = (env) => helmet({
   contentSecurityPolicy: {
-    directives: {
-      defaultSrc: ["'self'"],
-      styleSrc: ["'self'", "'unsafe-inline'"],
-      scriptSrc: ["'self'"],
-      imgSrc: ["'self'", 'data:', 'https:'],
-      connectSrc: ["'self'", ...env.ALLOWED_ORIGINS],
-      fontSrc: ["'self'", 'https:', 'data:'],
-      objectSrc: ["'none'"],
-      mediaSrc: ["'self'"],
-      frameSrc: ["'none'"],
-    },
+    directives: (() => {
+      const isDev = env.NODE_ENV === 'development'
+      const scriptSrc = ["'self'"]
+      const styleSrc = ["'self'"]
+      if (isDev) {
+        // In development we allow unsafe-inline/eval for convenience (Next dev tools, Tailwind JIT)
+        scriptSrc.push("'unsafe-eval'")
+        scriptSrc.push("'unsafe-inline'")
+        styleSrc.push("'unsafe-inline'")
+      }
+
+      return {
+        defaultSrc: ["'self'"],
+        styleSrc,
+        scriptSrc,
+        imgSrc: ["'self'", 'data:', 'https:'],
+        connectSrc: ["'self'", ...env.ALLOWED_ORIGINS],
+        fontSrc: ["'self'", 'https:', 'data:'],
+        objectSrc: ["'none'"],
+        mediaSrc: ["'self'"],
+        frameSrc: ["'none'"],
+      }
+    })(),
   },
   hsts: {
     maxAge: 31536000,

@@ -26,21 +26,26 @@ const nextConfig = {
             key: 'X-XSS-Protection',
             value: '1; mode=block',
           },
-          {
-            // Content Security Policy - Prevents XSS attacks
-            key: 'Content-Security-Policy',
-            value: [
-              "default-src 'self'",
-              "script-src 'self' 'unsafe-eval' 'unsafe-inline'",  // Next.js requires unsafe-inline
-              "style-src 'self' 'unsafe-inline'",  // Tailwind requires unsafe-inline
-              "img-src 'self' data: https:",
-              "font-src 'self' data:",
-              `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}`,  // API URL from env
-              "frame-ancestors 'none'",
-              "base-uri 'self'",
-              "form-action 'self'",
-            ].join('; '),
-          },
+          (() => {
+            const isDev = process.env.NODE_ENV === 'development'
+            const scriptSrc = isDev ? "script-src 'self' 'unsafe-eval' 'unsafe-inline'" : "script-src 'self'"
+            const styleSrc = isDev ? "style-src 'self' 'unsafe-inline'" : "style-src 'self'"
+            return {
+              // Content Security Policy - Prevents XSS attacks
+              key: 'Content-Security-Policy',
+              value: [
+                "default-src 'self'",
+                scriptSrc,
+                styleSrc,
+                "img-src 'self' data: https:",
+                "font-src 'self' data:",
+                `connect-src 'self' ${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}`,
+                "frame-ancestors 'none'",
+                "base-uri 'self'",
+                "form-action 'self'",
+              ].join('; '),
+            }
+          })(),
           {
             // Permissions Policy - Control browser features
             key: 'Permissions-Policy',
@@ -59,3 +64,14 @@ const nextConfig = {
 };
 
 export default nextConfig;
+
+// Proxy API requests to the backend during development so the browser uses
+// the same origin and can send HttpOnly cookies with `fetch(credentials:'include')`.
+nextConfig.rewrites = async () => {
+  return [
+    {
+      source: '/api/:path*',
+      destination: `${process.env.NEXT_PUBLIC_API_URL || 'http://localhost:4000'}/api/:path*`,
+    },
+  ]
+}
