@@ -167,7 +167,7 @@ export default function ForceGraph({ links }) {
             linkMap.set(edgeKey, {
               source: expIds[i],
               target: expIds[j],
-              linkName: link.title,
+              linkName: link.name,
               linkColor: link.color || '#8b5cf6',
             })
             edges.push(linkMap.get(edgeKey))

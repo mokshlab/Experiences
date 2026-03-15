@@ -100,14 +100,16 @@ export default function TimelineRiverFlow({ links }) {
     const animate = () => {
       ctx.clearRect(0, 0, canvas.width, canvas.height)
 
+      const isDark = document.documentElement.classList.contains('dark')
+
       // Draw time axis
       const leftMargin = 150
       const rightMargin = 50
       const timelineWidth = dimensions.width - leftMargin - rightMargin
 
-      // Draw year markers
-      ctx.strokeStyle = 'rgba(255, 255, 255, 0.1)'
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.85)'
+      // Draw year markers (use muted color depending on theme)
+      ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'
+      ctx.fillStyle = isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.85)'
       ctx.font = '12px monospace'
       ctx.textAlign = 'center'
 
@@ -137,17 +139,20 @@ export default function TimelineRiverFlow({ links }) {
         
         const isHovered = hoveredLink === river.id
 
-        // River background glow
+        // River background glow - convert hex to rgba for canvas alpha handling
+        const hex = river.color || '#8b5cf6'
+        const rgb = hexToRgb(hex)
+        const alphaMid = isHovered ? 0.25 : 0.12
         const gradient = ctx.createLinearGradient(startX, y - 40, startX, y + 40)
-        gradient.addColorStop(0, `${river.color}00`)
-        gradient.addColorStop(0.5, `${river.color}${isHovered ? '40' : '20'}`)
-        gradient.addColorStop(1, `${river.color}00`)
-        
+        gradient.addColorStop(0, `rgba(${rgb.r},${rgb.g},${rgb.b},0)`)
+        gradient.addColorStop(0.5, `rgba(${rgb.r},${rgb.g},${rgb.b},${alphaMid})`)
+        gradient.addColorStop(1, `rgba(${rgb.r},${rgb.g},${rgb.b},0)`)
+
         ctx.fillStyle = gradient
         ctx.fillRect(startX, y - 40, width, 80)
 
         // River outline with wave effect
-        ctx.strokeStyle = `${river.color}${isHovered ? 'cc' : '80'}`
+        ctx.strokeStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},${isHovered ? 0.8 : 0.5})`
         ctx.lineWidth = isHovered ? 3 : 2
         ctx.beginPath()
         
@@ -170,12 +175,12 @@ export default function TimelineRiverFlow({ links }) {
         ctx.closePath()
         ctx.stroke()
 
-        // River label box
+        // River label box (theme-aware)
         const labelBoxHeight = 50
-        ctx.fillStyle = 'rgba(0, 0, 0, 0.8)'
+        ctx.fillStyle = isDark ? 'rgba(10,10,10,0.7)' : 'rgba(255,255,255,0.95)'
         ctx.fillRect(10, y - labelBoxHeight/2, leftMargin - 20, labelBoxHeight)
-        
-        ctx.fillStyle = river.color
+
+        ctx.fillStyle = isDark ? '#fff' : '#111'
         ctx.font = 'bold 12px sans-serif'
         ctx.textAlign = 'left'
         
@@ -212,10 +217,10 @@ export default function TimelineRiverFlow({ links }) {
           ctx.fill()
           
           // Pulse ring
-          const pulseSize = 8 + Math.sin(Date.now() / 500 + ec.experience.id.length) * 2
+          const pulseSize = 8 + Math.sin(Date.now() / 500 + (ec.experience.id || '').length) * 2
           ctx.beginPath()
           ctx.arc(x, y, pulseSize, 0, Math.PI * 2)
-          ctx.strokeStyle = `${river.color}60`
+          ctx.strokeStyle = `rgba(${rgb.r},${rgb.g},${rgb.b},0.35)`
           ctx.lineWidth = 2
           ctx.stroke()
         })
@@ -238,11 +243,12 @@ export default function TimelineRiverFlow({ links }) {
           particle.baseY = river.yPosition
         }
 
-        // Draw particle
+        // Draw particle (use rgba from hex for safe alpha handling)
         const isHovered = hoveredLink === river.id
+        const particleRgb = hexToRgb(river.color || '#8b5cf6')
         ctx.beginPath()
         ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2)
-        ctx.fillStyle = `${river.color}${Math.floor(particle.opacity * (isHovered ? 255 : 128)).toString(16).padStart(2, '0')}`
+        ctx.fillStyle = `rgba(${particleRgb.r},${particleRgb.g},${particleRgb.b},${Math.max(0.05, particle.opacity * (isHovered ? 1 : 0.5))})`
         ctx.fill()
       })
 
@@ -257,6 +263,28 @@ export default function TimelineRiverFlow({ links }) {
       }
     }
   }, [dimensions, riverData, hoveredLink, globalMinDate, globalMaxDate, timeRange])
+
+  // Reset particles when river data changes to keep visual in sync
+  useEffect(() => {
+    particlesRef.current = []
+  }, [riverData.length])
+
+  // Helper: convert hex color to rgb object
+  function hexToRgb(hex) {
+    try {
+      if (!hex) return { r: 139, g: 92, b: 246 }
+      const h = hex.replace('#', '')
+      const full = h.length === 3 ? h.split('').map(c => c + c).join('') : h
+      const bigint = parseInt(full, 16)
+      if (Number.isNaN(bigint)) return { r: 139, g: 92, b: 246 }
+      const r = (bigint >> 16) & 255
+      const g = (bigint >> 8) & 255
+      const b = bigint & 255
+      return { r, g, b }
+    } catch (e) {
+      return { r: 139, g: 92, b: 246 }
+    }
+  }
 
   const handleCanvasClick = (e) => {
     const canvas = canvasRef.current

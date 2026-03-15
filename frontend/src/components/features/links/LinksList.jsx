@@ -1,6 +1,6 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { FiLink, FiCalendar, FiTrash2, FiEdit2 } from 'react-icons/fi'
@@ -10,7 +10,7 @@ import { apiClient } from '@/lib/api-client'
 import { useToast } from '@/components/common'
 
 export default function LinksList({ links: initialLinks }) {
-  const [links, setLinks] = useState(initialLinks)
+  const [links, setLinks] = useState(Array.isArray(initialLinks) ? initialLinks : [])
   const [deletingId, setDeletingId] = useState(null)
   const router = useRouter()
   const toast = useToast()
@@ -20,7 +20,10 @@ export default function LinksList({ links: initialLinks }) {
 
     try {
       await apiClient.links.delete(linkId)
+      // Optimistically remove from UI
       setLinks(links.filter(l => l.id !== linkId))
+      // Ensure server-rendered pages revalidate and stay in sync
+      try { router.refresh() } catch (e) { /* best-effort */ }
       toast.success('Link deleted successfully')
     } catch (error) {
       console.error('Error deleting link:', error)
@@ -30,12 +33,17 @@ export default function LinksList({ links: initialLinks }) {
     }
   }
 
+  // Sync when parent updates links prop (e.g., after client-side refresh)
+  useEffect(() => {
+    setLinks(initialLinks)
+  }, [initialLinks])
+
   return (
     <div className="relative grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       {links.map((link, index) => (
         <div
           key={link.id}
-          className="relative bg-gray-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden hover:border-gray-300 dark:hover:border-white/20 transition-all duration-300 group hover:scale-105 hover:shadow-2xl flex flex-col"
+          className="relative bg-gray-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden hover:border-gray-300 dark:hover:border-white/20 transition-all duration-300 group hover:scale-105 hover:shadow-2xl hover:ring-1 hover:ring-purple-300/30 dark:hover:ring-1 dark:hover:ring-purple-600/30 flex flex-col"
           style={{
             animationName: 'fadeInUp',
             animationDuration: '0.6s',
@@ -46,7 +54,7 @@ export default function LinksList({ links: initialLinks }) {
         >
           {/* Animated glow effect */}
           <div 
-            className="absolute inset-0 opacity-0 group-hover:opacity-20 transition-opacity duration-500 blur-xl"
+            className="absolute inset-0 transition-opacity duration-500 blur-xl link-card-overlay group-hover:opacity-40"
             style={{ 
               background: `radial-gradient(circle at 50% 50%, ${link.color}, transparent 70%)`
             }}
@@ -55,7 +63,7 @@ export default function LinksList({ links: initialLinks }) {
           {/* Color Stripe with pulse */}
           <div className="relative h-2 overflow-hidden">
             <div
-              className="absolute inset-0 animate-pulse"
+              className="absolute inset-0 animate-pulse color-stripe"
               style={{ backgroundColor: link.color }}
             />
             <div
@@ -68,7 +76,7 @@ export default function LinksList({ links: initialLinks }) {
           </div>
 
           {/* Content */}
-          <div className="relative px-4 py-5 z-10 flex-1 flex flex-col">
+            <div className="relative px-4 py-5 z-10 flex-1 flex flex-col">
             <div className="flex items-start justify-between mb-4">
               <Link href={`/links/${link.id}`} className="flex-1 group/title">
                 <div className="flex items-center gap-2">
@@ -120,11 +128,12 @@ export default function LinksList({ links: initialLinks }) {
                   <span>NEURAL CONNECTIONS</span>
                 </div>
                 {link.experienceLinks.map((ec) => {
-                  const category = CATEGORIES.find(c => c.value === ec.experience.category)
+                  const exp = ec.experience || {}
+                  const category = CATEGORIES.find(c => c.value === exp.category)
                   const IconComponent = category?.icon
                   return (
                     <div
-                      key={ec.experience.id}
+                      key={exp.id || `${link.id}-${Math.random().toString(36).slice(2,7)}`}
                       className="flex items-center gap-2 text-sm py-1.5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-lg transition-all group/exp"
                     >
                       <div 
@@ -138,15 +147,15 @@ export default function LinksList({ links: initialLinks }) {
                         )}
                       </div>
                       <span className="text-gray-700 dark:text-gray-200 flex-1 truncate group-hover/exp:text-gray-900 dark:group-hover/exp:text-white transition-colors">
-                        {ec.experience.title}
+                        {exp.title || 'Untitled experience'}
                       </span>
                       <span className="text-gray-500 dark:text-gray-300 text-[11px] font-mono font-semibold tracking-tight">
-                        {formatShortDate(ec.experience.date)}
+                        {formatShortDate(exp.date)}
                       </span>
                     </div>
                   )
                 })}
-                {link._count.experienceLinks > 3 && (
+                {(link._count?.experienceLinks || 0) > 3 && (
                   <Link
                     href={`/links/${link.id}`}
                     className="flex items-center justify-center gap-2 text-sm py-2 pt-3 text-purple-300 font-semibold hover:text-purple-200 transition-all"
