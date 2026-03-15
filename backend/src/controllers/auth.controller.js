@@ -52,11 +52,13 @@ export const register = async (req, res, next) => {
     res.cookie('token', token, {
       ...cookieOptions,
       maxAge: 15 * 60 * 1000, // 15 mins
+      path: '/',
     })
 
     res.cookie('refreshToken', refreshToken, {
       ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
     })
 
     res.status(201).json({
@@ -72,6 +74,10 @@ export const register = async (req, res, next) => {
  * POST /auth/login
  */
 export const login = async (req, res, next) => {
+    const _rid = req.headers?.['x-request-id']
+      ? `${String(req.headers['x-request-id']).slice(0, 8)}...`
+      : `ts:${Date.now()}`
+    console.info(`[auth:${_rid}] origin=${req.headers?.origin || 'none'} cookies token=${!!req.cookies?.token} refresh=${!!req.cookies?.refreshToken}`)
   try {
     const { email, password } = req.body
 
@@ -118,11 +124,13 @@ export const login = async (req, res, next) => {
     res.cookie('token', token, {
       ...cookieOptions,
       maxAge: 15 * 60 * 1000, // 15 mins
+      path: '/',
     })
 
     res.cookie('refreshToken', refreshToken, {
       ...cookieOptions,
       maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
     })
 
     res.json({
@@ -146,12 +154,14 @@ export const logout = async (req, res) => {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/',
   })
   
   res.clearCookie('refreshToken', {
     httpOnly: true,
     secure: process.env.NODE_ENV === 'production',
     sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+    path: '/',
   })
   
   res.json({ 
@@ -161,6 +171,10 @@ export const logout = async (req, res) => {
 }
 
 export const getMe = async (req, res, next) => {
+  const _rid = req.headers?.['x-request-id']
+    ? `${String(req.headers['x-request-id']).slice(0, 8)}...`
+    : `ts:${Date.now()}`
+  console.info(`[auth:${_rid}] origin=${req.headers?.origin || 'none'} cookies token=${!!req.cookies?.token} refresh=${!!req.cookies?.refreshToken}`)
   try {
     const user = await prisma.user.findUnique({
       where: { id: req.user.id },
@@ -191,6 +205,10 @@ export const getMe = async (req, res, next) => {
  * Uses the refreshToken cookie to issue a new access token
  */
 export const refresh = async (req, res, next) => {
+  const _rid = req.headers?.['x-request-id']
+    ? `${String(req.headers['x-request-id']).slice(0, 8)}...`
+    : `ts:${Date.now()}`
+  console.info(`[auth:${_rid}] origin=${req.headers?.origin || 'none'} cookies token=${!!req.cookies?.token} refresh=${!!req.cookies?.refreshToken}`)
   try {
     const refreshToken = req.cookies?.refreshToken
 
@@ -228,13 +246,20 @@ export const refresh = async (req, res, next) => {
         secure: process.env.NODE_ENV === 'production',
         sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
         maxAge: 15 * 60 * 1000,
+        path: '/',
       })
 
       res.json({ message: 'Token refreshed successfully' })
     } catch (error) {
-      // If refresh token is invalid/expired, clear it
-      res.clearCookie('token')
-      res.clearCookie('refreshToken')
+      // If refresh token is invalid/expired, clear it with same options
+      const cookieOptions = {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'lax',
+        path: '/',
+      }
+      res.clearCookie('token', cookieOptions)
+      res.clearCookie('refreshToken', cookieOptions)
       return res.status(401).json({ message: 'Invalid or expired refresh token' })
     }
   } catch (error) {
