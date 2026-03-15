@@ -44,14 +44,21 @@ const Sidebar = ({ categoryStats }) => {
     return () => window.removeEventListener('keydown', handleEscape)
   }, [isMobileMenuOpen])
   
-  const navigation = [
-    { name: 'Dashboard', href: '/dashboard', icon: FiHome },
-    { name: 'New Experience', href: '/experiences/new', icon: FiPlusCircle },
-    { name: 'Explore', href: '/explore', icon: FiGlobe },
-    { name: 'Memory Links 🧠', href: '/links', icon: FiLink },
-    { name: 'Analytics', href: '/analytics', icon: FiPieChart },
-    { name: 'Profile', href: '/profile', icon: FiUser },
-  ]
+  // Grouped navigation for better information scent and scannability
+  const navigation = {
+    primary: [
+      { name: 'Dashboard', href: '/dashboard', icon: FiHome },
+      { name: 'Explore', href: '/explore', icon: FiGlobe },
+      { name: 'Memory Links', href: '/links', icon: FiLink },
+    ],
+    actions: [
+      { name: 'New Experience', href: '/experiences/new', icon: FiPlusCircle },
+    ],
+    insights: [
+      { name: 'Analytics', href: '/analytics', icon: FiPieChart },
+      { name: 'Profile', href: '/profile', icon: FiUser },
+    ],
+  }
 
   const themeOptions = [
     { value: 'light', icon: FiSun, label: 'Light' },
@@ -125,25 +132,73 @@ const Sidebar = ({ categoryStats }) => {
           </kbd>
         </button>
 
-        {navigation.map((item) => {
-          const isActive = pathname === item.href
-          return (
+        {/* Primary navigation (most important destinations) */}
+        <div className="mb-3">
+          <h3 className="sr-only">Primary</h3>
+          <div className="space-y-1">
+            {navigation.primary.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  aria-current={isActive ? 'page' : undefined}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400'
+                      : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-zinc-800'
+                  }`}
+                >
+                  <item.icon className="h-5 w-5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                  <span className="truncate">{item.name}</span>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
+
+        {/* Quick actions - visually prominent to encourage primary flows */}
+        <div className="mb-4">
+          <h3 className="sr-only">Quick actions</h3>
+          {navigation.actions.map((action) => (
             <Link
-              key={item.name}
-              href={item.href}
-              aria-current={isActive ? 'page' : undefined}
+              key={action.name}
+              href={action.href}
               onClick={() => setIsMobileMenuOpen(false)}
-              className={`flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-medium transition-colors ${
-                isActive
-                  ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400'
-                  : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-zinc-800'
-              }`}
+              className="flex items-center gap-3 rounded-lg px-3 py-2 text-sm font-semibold bg-gradient-to-r from-purple-600 to-pink-600 text-white shadow-md hover:scale-[1.01] transition-transform"
             >
-              <item.icon className="h-5 w-5" />
-              {item.name}
+              <action.icon className="h-5 w-5" />
+              <span>{action.name}</span>
             </Link>
-          )
-        })}
+          ))}
+        </div>
+
+        {/* Insights & account */}
+        <div>
+          <h3 className="sr-only">Insights</h3>
+          <div className="space-y-1">
+            {navigation.insights.map((item) => {
+              const isActive = pathname === item.href
+              return (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  aria-current={isActive ? 'page' : undefined}
+                  onClick={() => setIsMobileMenuOpen(false)}
+                  className={`flex items-center gap-3 rounded-md px-3 py-2 text-sm font-medium transition-colors ${
+                    isActive
+                      ? 'bg-purple-50 text-purple-700 dark:bg-purple-900/20 dark:text-purple-400'
+                      : 'text-gray-700 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-zinc-800'
+                  }`}
+                >
+                  <item.icon className="h-5 w-5 flex-shrink-0 text-gray-500 dark:text-gray-400" />
+                  <span className="truncate">{item.name}</span>
+                </Link>
+              )
+            })}
+          </div>
+        </div>
       </nav>
 
       {/* Theme Switcher */}

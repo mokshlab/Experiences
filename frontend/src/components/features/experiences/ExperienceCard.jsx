@@ -39,24 +39,22 @@ const ExperienceCard = ({ experience, showAuthor = false, from = 'dashboard' }) 
         )}
 
         {/* Header */}
-        <div className="mb-4 flex items-start justify-between">
-          <div className="flex-1">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
-              {experience.title}
-            </h3>
-            <div className="mt-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
-              <FiCalendar className="h-4 w-4" />
-              <span>{formatDateTime(experience.date)}</span>
+        <div className="mb-4">
+          <div className="flex items-start justify-between">
+            <div className="flex-1">
+              <h3 className="text-lg font-semibold text-gray-900 dark:text-white group-hover:text-purple-600 dark:group-hover:text-purple-400 transition-colors">
+                {experience.title}
+              </h3>
+              <div className="mt-2 flex items-center gap-2 text-sm text-gray-500 dark:text-gray-400">
+                <FiCalendar className="h-4 w-4" />
+                <span>{formatDateTime(experience.date)}</span>
+              </div>
             </div>
           </div>
-          
-          {/* Privacy Icon */}
-          <div className={`rounded-full p-2 ${experience.isPublic ? 'bg-green-50 dark:bg-green-900/30' : 'bg-gray-50 dark:bg-zinc-700/50'}`}>
-            {experience.isPublic ? (
-              <FiGlobe className="h-4 w-4 text-green-600 dark:text-green-400" />
-            ) : (
-              <FiLock className="h-4 w-4 text-gray-600 dark:text-gray-300" />
-            )}
+
+          {/* small category accent top-right */}
+          <div className={`absolute top-6 right-6 w-8 h-8 rounded-full flex items-center justify-center ${categoryConfig.bgColor}`} aria-hidden="true">
+            <CategoryIcon className={`${categoryConfig.color} h-4 w-4`} />
           </div>
         </div>
 
@@ -73,13 +71,21 @@ const ExperienceCard = ({ experience, showAuthor = false, from = 'dashboard' }) 
             {categoryConfig.label}
           </span>
 
-          {/* Reflections Count */}
-          {experience.isPublic && (
-            <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-300">
-              <FiMessageCircle className="h-4 w-4" />
-              <span>{experience.reflectionsCount || experience._count?.reflections || 0}</span>
-            </div>
-          )}
+          <div className="flex items-center gap-3">
+            {/* Privacy badge (moved to footer to avoid repeating header avatar) */}
+            <span className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs ${experience.isPublic ? 'bg-green-50 text-green-700 dark:bg-green-900/30 dark:text-green-300' : 'bg-gray-100 text-gray-700 dark:bg-zinc-700 dark:text-gray-300'}`}>
+              {experience.isPublic ? <FiGlobe className="h-3 w-3" /> : <FiLock className="h-3 w-3" />}
+              <span className="sr-only">{experience.isPublic ? 'Public' : 'Private'}</span>
+            </span>
+
+            {/* Reflections Count */}
+            {experience.isPublic && (
+              <div className="flex items-center gap-1 text-xs text-gray-500 dark:text-gray-300">
+                <FiMessageCircle className="h-4 w-4" />
+                <span>{experience.reflectionsCount || experience._count?.reflections || 0}</span>
+              </div>
+            )}
+          </div>
         </div>
 
         {/* Mood Badge (if exists) */}

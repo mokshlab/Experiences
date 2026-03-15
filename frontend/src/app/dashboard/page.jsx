@@ -80,13 +80,7 @@ export default async function DashboardPage() {
               {getNudge()}
             </p>
           </div>
-          <Link
-            href="/experiences/new"
-            className="flex items-center gap-2 rounded-lg bg-gradient-to-r from-purple-600 to-pink-600 px-4 sm:px-6 py-2.5 sm:py-3 font-semibold text-white shadow-lg transition-transform hover:scale-105 text-sm sm:text-base whitespace-nowrap"
-          >
-            <FiPlus className="h-4 w-4 sm:h-5 sm:w-5" />
-            New Experience
-          </Link>
+          {/* New Experience button intentionally removed from dashboard header to reduce visual clutter */}
         </div>
 
         {/* Quick Stats Row */}
