@@ -28,6 +28,28 @@
   }
 }
 
+/* Ensure CSS variables also update when using class-based dark mode (`.dark`).
+   This keeps `body` background and foreground in sync with the ThemeProvider's
+   `document.documentElement.classList` changes (user toggle). */
+.dark :root {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+  --accent-500: #7c3aed;
+  --accent-400: #ec4899;
+  --vignette: radial-gradient(ellipse at center, rgba(0,0,0,0.35), rgba(0,0,0,0.75));
+}
+
+/* Fallback body background when `.dark` is present to avoid flashes where
+   CSS variables may not have propagated yet. */
+.dark body {
+  background: #0a0a0a !important;
+  color: #ededed !important;
+}
+
+/* NOTE: Scoped timeline overrides removed in favor of explicit `dark:`
+   Tailwind variants applied directly in components (LinkTimeline.jsx).
+   This keeps light and dark implementations explicit and predictable. */
+
 body {
   background: var(--background);
   color: var(--foreground);
@@ -81,7 +103,7 @@ body {
 
 @media (prefers-color-scheme: dark) {
   .links-empty {
-    background: rgba(10,10,10,0.36);
+    background: rgba(10,10,10,0.6);
     backdrop-filter: blur(6px) saturate(140%) contrast(1.04);
   }
 

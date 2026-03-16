@@ -101,32 +101,32 @@ const Sidebar = ({ categoryStats }) => {
         role="navigation"
         aria-label="Main navigation"
         className={`
-        fixed lg:static inset-y-0 left-0 z-40
+        fixed lg:sticky top-0 inset-y-0 left-0 z-40
         flex h-screen w-64 flex-col bg-white border-r border-gray-200 
         dark:bg-zinc-900 dark:border-zinc-800
         transform transition-transform duration-300 ease-in-out
         ${isMobileMenuOpen ? 'translate-x-0' : '-translate-x-full lg:translate-x-0'}
       `}>
       {/* Logo */}
-      <div className="flex h-16 items-center px-6 border-b border-gray-200 dark:border-zinc-800">
+      <div className="flex h-12 items-center px-5 border-b border-gray-200 dark:border-zinc-800">
         <h1 className="text-2xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
           Experiences🧩
         </h1>
       </div>
 
       {/* Navigation */}
-      <nav className="flex-1 space-y-1 px-3 py-4 overflow-y-auto" aria-label="Main">
+      <nav className="flex-1 space-y-1 px-3 py-3 overflow-y-auto" aria-label="Main">
         {/* Search shortcut hint */}
         <button
           onClick={() => {
             const event = new KeyboardEvent('keydown', { key: 'k', metaKey: true, ctrlKey: true, bubbles: true })
             window.dispatchEvent(event)
           }}
-          className="w-full flex items-center gap-3 rounded-lg px-3 py-2 mb-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors border border-gray-200 dark:border-zinc-700/50"
+          className="w-full flex items-center gap-3 rounded-lg px-3 py-1.5 mb-2 text-sm font-medium text-gray-500 dark:text-gray-400 bg-gray-50 dark:bg-zinc-800/50 hover:bg-gray-100 dark:hover:bg-zinc-800 transition-colors border border-gray-200 dark:border-zinc-700/50"
           aria-label="Open search (Ctrl+K)"
         >
           <FiSearch className="h-4 w-4" />
-          <span className="flex-1 text-left text-xs">Search...</span>
+          <span className="flex-1 text-left text-sm">Search...</span>
           <kbd className="hidden sm:inline-flex items-center gap-0.5 rounded border border-gray-200 dark:border-zinc-700 px-1.5 py-0.5 text-[10px] text-gray-400">
             ⌘K
           </kbd>
@@ -159,7 +159,7 @@ const Sidebar = ({ categoryStats }) => {
         </div>
 
         {/* Quick actions - visually prominent to encourage primary flows */}
-        <div className="mb-4">
+        <div className="mb-3">
           <h3 className="sr-only">Quick actions</h3>
           {navigation.actions.map((action) => (
             <Link
@@ -201,8 +201,9 @@ const Sidebar = ({ categoryStats }) => {
         </div>
       </nav>
 
-      {/* Theme Switcher */}
-      <div className="border-t border-gray-200 p-4 dark:border-zinc-800">
+      {/* Footer controls (theme + stats) - pinned to bottom */}
+      <div className="mt-auto">
+      <div className="border-t border-gray-200 p-3 dark:border-zinc-800">
         <div className="mb-3 flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
           <FiSun className="h-4 w-4" />
           <span>Appearance</span>
@@ -232,7 +233,7 @@ const Sidebar = ({ categoryStats }) => {
       </div>
 
       {/* Category Stats - Bottom */}
-      <div className="border-t border-gray-200 p-4 dark:border-zinc-800">
+      <div className="border-t border-gray-200 p-3 dark:border-zinc-800">
         <div className="mb-2 flex items-center gap-2 text-xs font-semibold text-gray-500 dark:text-gray-400">
           <FiTrendingUp className="h-4 w-4" />
           <span>This Month</span>
@@ -259,7 +260,7 @@ const Sidebar = ({ categoryStats }) => {
             )
           })}
         </div>
-        <div className="mt-3 pt-3 border-t border-gray-100 dark:border-zinc-800">
+        <div className="mt-2 pt-2 border-t border-gray-100 dark:border-zinc-800">
           <div className="flex items-center justify-between text-xs font-semibold">
             <span className="text-gray-700 dark:text-gray-300">Total Posts</span>
             <span className="text-purple-600 dark:text-purple-400">
@@ -267,6 +268,7 @@ const Sidebar = ({ categoryStats }) => {
             </span>
           </div>
         </div>
+      </div>
       </div>
     </div>
     </>
