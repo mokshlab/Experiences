@@ -13,9 +13,9 @@ export default function LinksPageClient({ links }) {
   // Refresh links client-side on mount to ensure newly-created links show immediately
   useEffect(() => {
     let mounted = true
-    async function refresh() {
+    async function refresh(includeAll = false) {
       try {
-        const fresh = await import('@/lib/api-client').then(m => m.apiClient.links.getAll())
+        const fresh = await import('@/lib/api-client').then(m => m.apiClient.links.getAll(includeAll))
         if (mounted && Array.isArray(fresh)) {
           setLinksState(fresh)
         }
@@ -23,15 +23,18 @@ export default function LinksPageClient({ links }) {
         // ignore — keep server-provided links
       }
     }
-    refresh()
+    // Initial load: request full data if starting in river/graph view
+    refresh(viewMode === 'river' || viewMode === 'graph')
+
     // Listen for BroadcastChannel updates so river view can refresh when links change elsewhere
     let bc
     try {
       bc = new BroadcastChannel('links-updates')
       bc.onmessage = async (ev) => {
-        // When a link is modified elsewhere, refresh the list
+        // When a link is modified elsewhere, refresh the list.
+        // Always request full data here to ensure river/graph stay in sync.
         try {
-          const fresh = await import('@/lib/api-client').then(m => m.apiClient.links.getAll())
+          const fresh = await import('@/lib/api-client').then(m => m.apiClient.links.getAll(true))
           if (mounted && Array.isArray(fresh)) setLinksState(fresh)
         } catch (e) {
           console.warn('Failed to refresh links after broadcast', e)
@@ -42,6 +45,22 @@ export default function LinksPageClient({ links }) {
     }
     return () => { mounted = false }
   }, [])
+
+  // Whenever the view mode changes to river/graph, fetch full links (all experiences)
+  useEffect(() => {
+    let mounted = true
+    async function refreshForView() {
+      const includeAll = viewMode === 'river' || viewMode === 'graph'
+      try {
+        const fresh = await import('@/lib/api-client').then(m => m.apiClient.links.getAll(includeAll))
+        if (mounted && Array.isArray(fresh)) setLinksState(fresh)
+      } catch (e) {
+        // ignore
+      }
+    }
+    refreshForView()
+    return () => { mounted = false }
+  }, [viewMode])
 
   // When in grid view, enable a body class so the sidebar can switch to sticky positioning on large screens
   useEffect(() => {
