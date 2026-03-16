@@ -43,6 +43,8 @@ export default function ExperienceView({ experience, isOwner, currentUserId, fro
   // Determine back URL from prop passed from server component
   const backUrl = from === 'explore' ? '/explore' : '/dashboard'
   const backText = from === 'explore' ? 'Back to Explore' : 'Back to Dashboard'
+  // When returning to dashboard, include a timestamp to force server revalidation
+  const backHref = from === 'explore' ? '/explore' : `/dashboard?ts=${Date.now()}`
 
   const categoryConfig = CATEGORY_CONFIG[experience.category] || CATEGORY_CONFIG.OTHER
   const CategoryIcon = categoryConfig.icon
@@ -63,8 +65,18 @@ export default function ExperienceView({ experience, isOwner, currentUserId, fro
       await apiClient.experiences.delete(experience.id)
       
       toast.success('Experience deleted')
-      // Keep loading during navigation
-      await router.push(backUrl)
+      // Trigger server-side revalidation for dashboard
+      try {
+        await fetch('/api/revalidate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paths: ['/dashboard'] })
+        })
+      } catch (e) {
+        console.warn('revalidate call failed', e)
+      }
+      // Keep loading during navigation and force dashboard server to fetch fresh data
+      await router.push(`${backUrl}?ts=${Date.now()}`)
     } catch (error) {
       console.error('Delete error:', error)
       toast.error('Something went wrong')
@@ -79,7 +91,7 @@ export default function ExperienceView({ experience, isOwner, currentUserId, fro
         {/* Header with Back Button */}
         <div className="mb-6 flex items-center justify-between">
           <Link 
-            href={backUrl}
+            href={backHref}
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white transition-colors"
           >
             <FiArrowLeft size={20} />
@@ -119,7 +131,7 @@ export default function ExperienceView({ experience, isOwner, currentUserId, fro
                     <span className="text-4xl drop-shadow-lg">{moodEmoji}</span>
                   )}
                   <div
-                    className="flex items-center gap-1.5 rounded-full bg-white/20 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-white"
+                    className="flex items-center gap-1.5 rounded-full bg-white/20 dark:bg-slate-800/30 backdrop-blur-sm px-3 py-1.5 text-xs font-semibold text-white"
                   >
                     <CategoryIcon size={14} />
                     {categoryConfig.label}
@@ -127,7 +139,7 @@ export default function ExperienceView({ experience, isOwner, currentUserId, fro
                 </div>
                 {/* Privacy badge */}
                 <div
-                  className="flex items-center gap-1 rounded-full bg-white/20 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-white"
+                  className="flex items-center gap-1 rounded-full bg-white/20 dark:bg-slate-800/30 backdrop-blur-sm px-3 py-1.5 text-xs font-medium text-white"
                 >
                   {experience.isPublic ? (
                     <>

@@ -163,9 +163,9 @@ export default function ProfileContent({ user, experiencesCount, linksCount }) {
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent animate-shimmer"></div>
               <div className="absolute inset-0 bg-black/5"></div>
               {/* Floating particles effect */}
-              <div className="absolute top-4 left-4 w-2 h-2 bg-white/40 rounded-full animate-pulse"></div>
-              <div className="absolute top-8 right-12 w-3 h-3 bg-white/30 rounded-full animate-pulse delay-100"></div>
-              <div className="absolute bottom-6 right-6 w-2 h-2 bg-white/40 rounded-full animate-pulse delay-200"></div>
+              <div className="absolute top-4 left-4 w-2 h-2 bg-white/40 dark:bg-slate-700/40 rounded-full animate-pulse"></div>
+              <div className="absolute top-8 right-12 w-3 h-3 bg-white/30 dark:bg-slate-700/30 rounded-full animate-pulse delay-100"></div>
+              <div className="absolute bottom-6 right-6 w-2 h-2 bg-white/40 dark:bg-slate-700/40 rounded-full animate-pulse delay-200"></div>
             </div>
 
             {/* Profile Content */}

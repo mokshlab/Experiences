@@ -198,7 +198,18 @@ export default function FocusedEditor({ mode = 'create', experience = null }) {
         })
         toast.success('Experience updated!')
         clearDraft()
-        await router.push(`/experiences/${experience.id}`)
+        // Trigger server-side revalidation for the dashboard and this experience page
+        try {
+          await fetch('/api/revalidate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paths: [`/dashboard`, `/experiences/${experience.id}`] })
+          })
+        } catch (e) {
+          console.warn('revalidate call failed', e)
+        }
+        // Add a cache-busting param so the experience page fetches fresh data
+        await router.push(`/experiences/${experience.id}?ts=${Date.now()}`)
       } else {
         await apiClient.experiences.create({
           ...submitData,
@@ -207,7 +218,18 @@ export default function FocusedEditor({ mode = 'create', experience = null }) {
         })
         toast.success('Experience created!')
         clearDraft()
-        await router.push('/dashboard')
+        // Trigger server-side revalidation for the dashboard
+        try {
+          await fetch('/api/revalidate', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ paths: ['/dashboard'] })
+          })
+        } catch (e) {
+          console.warn('revalidate call failed', e)
+        }
+        // Push to dashboard with a timestamp query param to avoid cached server fetches
+        await router.push(`/dashboard?ts=${Date.now()}`)
       }
     } catch (err) {
       toast.error(err.message || `Failed to ${mode === 'edit' ? 'update' : 'create'} experience`)

@@ -109,7 +109,7 @@ export default function TimelineRiverFlow({ links }) {
 
       // Draw year markers (use muted color depending on theme)
       ctx.strokeStyle = isDark ? 'rgba(255,255,255,0.06)' : 'rgba(0,0,0,0.06)'
-      ctx.fillStyle = isDark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.85)'
+      ctx.fillStyle = isDark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.85)'
       ctx.font = '12px monospace'
       ctx.textAlign = 'center'
 
@@ -177,7 +177,8 @@ export default function TimelineRiverFlow({ links }) {
 
         // River label box (theme-aware)
         const labelBoxHeight = 50
-        ctx.fillStyle = isDark ? 'rgba(10,10,10,0.7)' : 'rgba(255,255,255,0.95)'
+        // Use a slate-like dark fill in dark mode to avoid washed-out white tints
+        ctx.fillStyle = isDark ? 'rgba(15,23,42,0.9)' : 'rgba(255,255,255,0.95)'
         ctx.fillRect(10, y - labelBoxHeight/2, leftMargin - 20, labelBoxHeight)
 
         ctx.fillStyle = isDark ? '#fff' : '#111'
@@ -325,8 +326,8 @@ export default function TimelineRiverFlow({ links }) {
   }
 
   const containerClass = isFullscreen
-    ? 'fixed inset-0 z-50 bg-slate-900'
-    : 'relative w-full rounded-2xl border border-white/10 bg-slate-900/50 backdrop-blur-sm overflow-hidden'
+    ? 'fixed inset-0 z-50 bg-white dark:bg-slate-900'
+    : 'relative w-full rounded-2xl border border-gray-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900 backdrop-blur-sm overflow-hidden'
 
   return (
     <div className={containerClass}>
@@ -334,7 +335,7 @@ export default function TimelineRiverFlow({ links }) {
       <div className="absolute top-4 right-4 z-10 flex gap-2">
         <button
           onClick={toggleFullscreen}
-          className="p-3 rounded-lg bg-white/10 hover:bg-white/20 text-white transition-all backdrop-blur-sm border border-white/20 shadow-lg"
+          className="p-3 rounded-lg bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-slate-800 dark:text-white transition-all backdrop-blur-sm border border-gray-200 dark:border-slate-700 shadow-lg"
           title={isFullscreen ? 'Exit Fullscreen' : 'Enter Fullscreen'}
         >
           {isFullscreen ? <FiMinimize size={20} /> : <FiMaximize size={20} />}
@@ -343,7 +344,7 @@ export default function TimelineRiverFlow({ links }) {
 
       {/* Info Panel */}
       {hoveredLink && !isGuideOpen && (
-        <div className="absolute top-4 right-4 z-10 bg-slate-900/90 backdrop-blur-md border border-white/20 rounded-xl p-4 max-w-xs mr-16">
+        <div className="absolute top-4 right-4 z-10 bg-white dark:bg-slate-900 backdrop-blur-md border border-gray-200 dark:border-slate-700 rounded-xl p-4 max-w-xs mr-16 text-slate-800 dark:text-white">
           {riverData.find(r => r.id === hoveredLink) && (
             <>
               <div className="flex items-center gap-2 mb-3">
@@ -351,7 +352,7 @@ export default function TimelineRiverFlow({ links }) {
                   className="w-3 h-3 rounded-full animate-pulse"
                   style={{ backgroundColor: riverData.find(r => r.id === hoveredLink).color }}
                 />
-                <h3 className="text-white font-semibold text-lg">
+                <h3 className="text-slate-900 dark:text-white font-semibold text-lg">
                   {riverData.find(r => r.id === hoveredLink).name}
                 </h3>
               </div>
@@ -362,14 +363,14 @@ export default function TimelineRiverFlow({ links }) {
                   <FiZap className="text-purple-400" size={16} />
                   <div>
                     <div className="text-xs text-gray-500">Experiences</div>
-                    <div className="text-white font-semibold">{riverData.find(r => r.id === hoveredLink).count}</div>
+                    <div className="text-slate-900 dark:text-white font-semibold">{riverData.find(r => r.id === hoveredLink).count}</div>
                   </div>
                 </div>
                 <div className="flex items-center gap-2">
                   <FiClock className="text-blue-400" size={16} />
                   <div>
                     <div className="text-xs text-gray-500">Duration</div>
-                    <div className="text-white font-semibold">
+                    <div className="text-slate-900 dark:text-white font-semibold">
                       {(() => {
                         const minDate = riverData.find(r => r.id === hoveredLink).minDate
                         const maxDate = riverData.find(r => r.id === hoveredLink).maxDate
@@ -391,7 +392,7 @@ export default function TimelineRiverFlow({ links }) {
               </div>
               
               {/* Date Range */}
-              <div className="flex items-center gap-2 text-sm text-gray-400 bg-white/5 rounded-lg p-2">
+              <div className="flex items-center gap-2 text-sm text-gray-500 bg-gray-50 dark:bg-slate-800/20 rounded-lg p-2">
                 <FiCalendar size={14} />
                 <span>
                   {(() => {
@@ -420,7 +421,7 @@ export default function TimelineRiverFlow({ links }) {
           className={`flex items-center gap-2 px-4 py-2.5 rounded-lg font-medium text-sm transition-all duration-300 ${
             isGuideOpen
               ? 'bg-purple-600 text-white'
-              : 'bg-slate-800/90 backdrop-blur-md border border-white/20 text-white hover:bg-slate-700/90'
+              : 'bg-slate-800/90 backdrop-blur-md border border-slate-700/40 text-white hover:bg-slate-700/90'
           }`}
         >
           <span className="text-lg">🗺️</span>
@@ -429,14 +430,14 @@ export default function TimelineRiverFlow({ links }) {
 
         {/* Guide Panel - Opens on Hover */}
         {isGuideOpen && (
-          <div className="absolute top-14 left-0 w-64 bg-slate-800/95 backdrop-blur-md border border-white/20 rounded-lg p-4 shadow-2xl animate-fadeInUp">
+          <div className="absolute top-14 left-0 w-64 bg-white dark:bg-slate-800 backdrop-blur-md border border-gray-200 dark:border-slate-700 rounded-lg p-4 shadow-2xl animate-fadeInUp text-slate-800 dark:text-white">
             <div className="space-y-3">
               {/* Memory River */}
               <div className="flex items-start gap-3">
                 <div className="w-8 h-4 bg-gradient-to-r from-purple-500 to-purple-500/30 rounded mt-1 flex-shrink-0" />
                 <div>
-                  <div className="text-white font-medium text-sm">Memory River</div>
-                  <div className="text-gray-400 text-xs">Each shows time span</div>
+                  <div className="text-slate-900 dark:text-white font-medium text-sm">Memory River</div>
+                  <div className="text-gray-500 dark:text-gray-400 text-xs">Each shows time span</div>
                 </div>
               </div>
 
@@ -446,8 +447,8 @@ export default function TimelineRiverFlow({ links }) {
                   <div className="w-3 h-3 rounded-full bg-purple-400 flex-shrink-0" />
                 </div>
                 <div>
-                  <div className="text-white font-medium text-sm">Experience Marker</div>
-                  <div className="text-gray-400 text-xs">Hover for details</div>
+                  <div className="text-slate-900 dark:text-white font-medium text-sm">Experience Marker</div>
+                  <div className="text-gray-500 dark:text-gray-400 text-xs">Hover for details</div>
                 </div>
               </div>
 
@@ -459,13 +460,13 @@ export default function TimelineRiverFlow({ links }) {
                   <div className="w-1.5 h-1.5 rounded-full bg-purple-400/40 flex-shrink-0" />
                 </div>
                 <div>
-                  <div className="text-white font-medium text-sm">Flowing Energy</div>
-                  <div className="text-gray-400 text-xs">Active memories</div>
+                  <div className="text-slate-900 dark:text-white font-medium text-sm">Flowing Energy</div>
+                  <div className="text-gray-500 dark:text-gray-400 text-xs">Active memories</div>
                 </div>
               </div>
 
               {/* Divider */}
-              <div className="border-t border-white/10 my-3"></div>
+              <div className="border-t border-gray-200/40 dark:border-slate-700/40 my-3"></div>
 
               {/* Interactions */}
               <div className="space-y-2 text-xs">

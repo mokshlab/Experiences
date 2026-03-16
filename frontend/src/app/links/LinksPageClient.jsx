@@ -24,8 +24,34 @@ export default function LinksPageClient({ links }) {
       }
     }
     refresh()
+    // Listen for BroadcastChannel updates so river view can refresh when links change elsewhere
+    let bc
+    try {
+      bc = new BroadcastChannel('links-updates')
+      bc.onmessage = async (ev) => {
+        // When a link is modified elsewhere, refresh the list
+        try {
+          const fresh = await import('@/lib/api-client').then(m => m.apiClient.links.getAll())
+          if (mounted && Array.isArray(fresh)) setLinksState(fresh)
+        } catch (e) {
+          console.warn('Failed to refresh links after broadcast', e)
+        }
+      }
+    } catch (e) {
+      // BroadcastChannel not available — skip
+    }
     return () => { mounted = false }
   }, [])
+
+  // When in grid view, enable a body class so the sidebar can switch to sticky positioning on large screens
+  useEffect(() => {
+    if (viewMode === 'grid') {
+      document.body.classList.add('links-grid-sidebar-sticky')
+    } else {
+      document.body.classList.remove('links-grid-sidebar-sticky')
+    }
+    return () => document.body.classList.remove('links-grid-sidebar-sticky')
+  }, [viewMode])
 
   return (
     <div className="relative">
@@ -52,7 +78,7 @@ export default function LinksPageClient({ links }) {
           {linksState.length > 0 && (
             <div className="flex items-center justify-between gap-4 mb-6">
               {/* View Mode Toggle */}
-              <div className="inline-flex rounded-xl bg-gray-100 dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10 p-1">
+              <div className="inline-flex rounded-xl bg-gray-100 dark:bg-slate-800/60 backdrop-blur-sm border border-gray-200 dark:border-slate-700/40 p-1">
                 <button
                   onClick={() => setViewMode('grid')}
                   className={`inline-flex items-center gap-1.5 sm:gap-2 px-3 sm:px-4 py-2 rounded-lg font-medium transition-all text-sm sm:text-base ${
@@ -96,7 +122,7 @@ export default function LinksPageClient({ links }) {
 
         {/* Content */}
         {linksState.length === 0 ? (
-          <div className="relative links-hero links-empty rounded-2xl p-8 sm:p-12 text-center border border-gray-200 dark:border-white/10 overflow-hidden">
+                <div className="relative links-hero links-empty rounded-2xl p-8 sm:p-12 text-center border border-gray-200 dark:border-slate-700/30 overflow-hidden">
             {/* Animated background */}
             <div className="absolute inset-0 overflow-hidden opacity-20 hero-bg">
               <div className="absolute top-0 left-1/4 w-32 h-32 bg-pink-500 rounded-full blur-2xl animate-pulse" />
@@ -121,18 +147,18 @@ export default function LinksPageClient({ links }) {
               </p>
               
               {/* Feature highlights */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6 sm:mb-8 max-w-3xl mx-auto">
-                <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 border border-purple-500/20">
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 mb-6 sm:mb-8 max-w-3xl mx-auto">
+                <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 border border-purple-500/20">
                   <span className="text-3xl block mb-2">⚡</span>
                   <div className="text-sm text-purple-600 dark:text-purple-300 font-semibold">Connect Experiences</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Link related memories</div>
                 </div>
-                <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 border border-pink-500/20">
+                <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 border border-pink-500/20">
                   <span className="text-3xl block mb-2">🌊</span>
                   <div className="text-sm text-pink-600 dark:text-pink-300 font-semibold">River View</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">See timeline flow</div>
                 </div>
-                <div className="bg-gray-50 dark:bg-white/5 rounded-xl p-4 border border-blue-500/20 sm:col-span-2 md:col-span-1">
+                <div className="bg-gray-50 dark:bg-slate-800 rounded-xl p-4 border border-blue-500/20 sm:col-span-2 md:col-span-1">
                   <span className="text-3xl block mb-2">🎨</span>
                   <div className="text-sm text-blue-600 dark:text-blue-300 font-semibold">Custom Colors</div>
                   <div className="text-xs text-gray-500 dark:text-gray-400 mt-1">Personalize pathways</div>

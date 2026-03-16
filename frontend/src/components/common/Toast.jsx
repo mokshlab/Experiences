@@ -51,7 +51,7 @@ function ToastItem({ id, message, type = 'info', onRemove }) {
       <p className="text-sm font-medium flex-1">{message}</p>
       <button
         onClick={handleDismiss}
-        className="flex-shrink-0 p-1 rounded-lg hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+        className="flex-shrink-0 p-1 rounded-lg hover:bg-black/10 dark:hover:bg-slate-700/40 transition-colors"
         aria-label="Dismiss"
       >
         <FiX className="w-4 h-4" />

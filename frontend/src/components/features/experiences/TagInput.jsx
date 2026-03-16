@@ -176,7 +176,7 @@ export default function TagInput({ tags, onChange, content = '', existingTags = 
                   e.stopPropagation()
                   removeTag(index)
                 }}
-                className="ml-0.5 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-white/10 transition-colors"
+                className="ml-0.5 rounded-full p-0.5 hover:bg-black/10 dark:hover:bg-slate-700/40 transition-colors"
                 aria-label={`Remove tag ${tag}`}
               >
                 <FiX className="h-3 w-3" />

@@ -449,7 +449,7 @@ export default function ForceGraph({ links }) {
 
   if (nodes.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center rounded-2xl bg-white/5 border border-white/10 p-12 text-center">
+      <div className="flex flex-col items-center justify-center rounded-2xl bg-gray-50 dark:bg-slate-900 border border-gray-200 dark:border-slate-700 p-12 text-center">
         <span className="text-5xl mb-4">🕸️</span>
         <p className="text-gray-400 text-lg">Create links with multiple experiences to see your knowledge graph</p>
       </div>
@@ -462,7 +462,7 @@ export default function ForceGraph({ links }) {
   return (
     <div
       ref={containerRef}
-      className={`relative rounded-2xl overflow-hidden border border-gray-200 dark:border-zinc-800 bg-gray-50 dark:bg-zinc-950 ${
+      className={`relative rounded-2xl overflow-hidden border border-gray-200 dark:border-slate-700 bg-gray-50 dark:bg-slate-950 ${
         isFullscreen ? 'fixed inset-0 z-50 rounded-none' : ''
       }`}
       style={{ height: isFullscreen ? '100vh' : '500px' }}
@@ -481,7 +481,7 @@ export default function ForceGraph({ links }) {
 
       {/* Controls */}
       <div className="absolute top-4 right-4 flex flex-col gap-2">
-        <button onClick={() => setZoom(z => Math.min(3, z + 0.2))} className="p-2 rounded-lg bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors" title="Zoom in" aria-label="Zoom in">
+        <button onClick={() => setZoom(z => Math.min(3, z + 0.2))} className="p-2 rounded-lg bg-gray-50 dark:bg-slate-800 border border-gray-200 dark:border-slate-700 shadow-sm hover:bg-gray-50 dark:hover:bg-slate-700 transition-colors" title="Zoom in" aria-label="Zoom in">
           <FiZoomIn className="w-4 h-4 text-gray-600 dark:text-gray-300" />
         </button>
         <button onClick={() => setZoom(z => Math.max(0.3, z - 0.2))} className="p-2 rounded-lg bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 shadow-sm hover:bg-gray-50 dark:hover:bg-zinc-700 transition-colors" title="Zoom out" aria-label="Zoom out">
@@ -496,7 +496,7 @@ export default function ForceGraph({ links }) {
       </div>
 
       {/* Legend */}
-      <div className="absolute bottom-4 left-4 bg-white/90 dark:bg-zinc-900/90 backdrop-blur-sm rounded-xl px-4 py-3 border border-gray-200 dark:border-zinc-700 shadow-sm">
+      <div className="absolute bottom-4 left-4 bg-white/90 dark:bg-slate-900/90 backdrop-blur-sm rounded-xl px-4 py-3 border border-gray-200 dark:border-slate-700 shadow-sm">
         <p className="text-[10px] font-semibold text-gray-500 dark:text-gray-400 mb-2 uppercase tracking-wider">Categories</p>
         <div className="flex flex-wrap gap-x-3 gap-y-1.5">
           {categoriesInGraph.map(cat => (

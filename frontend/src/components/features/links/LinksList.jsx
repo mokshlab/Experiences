@@ -24,6 +24,23 @@ export default function LinksList({ links: initialLinks }) {
       setLinks(links.filter(l => l.id !== linkId))
       // Ensure server-rendered pages revalidate and stay in sync
       try { router.refresh() } catch (e) { /* best-effort */ }
+      // Ask server to revalidate Next.js pages and notify other tabs
+      try {
+        await fetch('/api/revalidate', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ paths: ['/links'] })
+        })
+      } catch (e) {
+        console.warn('revalidate call failed', e)
+      }
+      try {
+        const bc = new BroadcastChannel('links-updates')
+        bc.postMessage({ type: 'link-deleted', linkId })
+        bc.close()
+      } catch (e) {
+        // ignore if BroadcastChannel unsupported
+      }
       toast.success('Link deleted successfully')
     } catch (error) {
       console.error('Error deleting link:', error)
@@ -43,7 +60,7 @@ export default function LinksList({ links: initialLinks }) {
       {links.map((link, index) => (
         <div
           key={link.id}
-          className="relative bg-gray-100 dark:bg-white/5 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-white/10 overflow-hidden hover:border-gray-300 dark:hover:border-white/20 transition-all duration-300 group hover:scale-105 hover:shadow-2xl hover:ring-1 hover:ring-purple-300/30 dark:hover:ring-1 dark:hover:ring-purple-600/30 flex flex-col"
+          className="relative bg-gray-100 dark:bg-slate-900 backdrop-blur-sm rounded-2xl border border-gray-200 dark:border-slate-700 overflow-hidden hover:border-gray-300 dark:hover:border-slate-600 transition-all duration-300 group hover:scale-105 hover:shadow-2xl hover:ring-1 hover:ring-purple-300/30 dark:hover:ring-1 dark:hover:ring-purple-600/30 flex flex-col"
           style={{
             animationName: 'fadeInUp',
             animationDuration: '0.6s',
@@ -69,7 +86,7 @@ export default function LinksList({ links: initialLinks }) {
             <div
               className="absolute inset-0 animate-shimmer"
               style={{ 
-                background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent)`,
+                background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.06), transparent)`,
                 transform: 'translateX(-100%)'
               }}
             />
@@ -94,7 +111,7 @@ export default function LinksList({ links: initialLinks }) {
               <div className="flex items-center gap-2 ml-2">
                 <Link
                   href={`/links/${link.id}/edit`}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-white/10 text-gray-400 hover:text-purple-400 transition-all transform hover:scale-110"
+                  className="p-2 rounded-lg bg-gray-50 dark:bg-slate-800 hover:bg-gray-100 dark:hover:bg-slate-700 text-gray-400 hover:text-purple-400 transition-all transform hover:scale-110"
                   title="Edit neural pathway"
                 >
                   <FiEdit2 className="w-4 h-4" />
@@ -102,7 +119,7 @@ export default function LinksList({ links: initialLinks }) {
                 <button
                   onClick={() => handleDelete(link.id)}
                   disabled={deletingId === link.id}
-                  className="p-2 rounded-lg bg-white/5 hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-all disabled:opacity-50 transform hover:scale-110"
+                  className="p-2 rounded-lg bg-gray-50 dark:bg-slate-800 hover:bg-red-500/10 text-gray-400 hover:text-red-400 transition-all disabled:opacity-50 transform hover:scale-110"
                   title="Delete neural pathway"
                 >
                   {deletingId === link.id ? (
@@ -122,7 +139,7 @@ export default function LinksList({ links: initialLinks }) {
 
             {/* Preview of experiences */}
             {link.experienceLinks && link.experienceLinks.length > 0 && (
-              <div className="space-y-1.5 border-t border-gray-200 dark:border-white/10 pt-4 mt-4 flex-1">
+              <div className="space-y-1.5 border-t border-gray-200 dark:border-slate-700 pt-4 mt-4 flex-1">
                 <div className="text-xs text-gray-500 dark:text-gray-400 font-semibold mb-3 flex items-center gap-2">
                   <span className="w-5 text-center">⚡</span>
                   <span>NEURAL CONNECTIONS</span>
@@ -134,7 +151,7 @@ export default function LinksList({ links: initialLinks }) {
                   return (
                     <div
                       key={exp.id || `${link.id}-${Math.random().toString(36).slice(2,7)}`}
-                      className="flex items-center gap-2 text-sm py-1.5 hover:bg-gray-200 dark:hover:bg-white/10 rounded-lg transition-all group/exp"
+                      className="flex items-center gap-2 text-sm py-1.5 hover:bg-gray-200 dark:hover:bg-slate-700 rounded-lg transition-all group/exp"
                     >
                       <div 
                         className="w-5 h-5 flex items-center justify-center rounded-lg flex-shrink-0"
@@ -170,7 +187,7 @@ export default function LinksList({ links: initialLinks }) {
             {/* View Link Timeline */}
             <Link
               href={`/links/${link.id}`}
-              className="group/btn relative block mt-auto pt-5 text-center py-3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-white/5 dark:to-white/10 hover:from-gray-300 hover:to-gray-400 dark:hover:from-white/10 dark:hover:to-white/15 text-gray-700 dark:text-white rounded-lg transition-all overflow-hidden font-semibold"
+              className="group/btn relative block mt-auto pt-5 text-center py-3 bg-gradient-to-r from-gray-200 to-gray-300 dark:from-slate-800/40 dark:to-slate-800/60 hover:from-gray-300 hover:to-gray-400 dark:hover:from-slate-800/50 dark:hover:to-slate-800/70 text-gray-700 dark:text-white rounded-lg transition-all overflow-hidden font-semibold"
             >
               <div 
                 className="absolute inset-0 opacity-0 group-hover/btn:opacity-100 transition-opacity"

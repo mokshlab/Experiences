@@ -58,7 +58,7 @@ export default function ExploreContent({ initialExperiences, currentUserId }) {
         </div>
 
         <div className="mt-6 mb-8">
-          <div className="inline-flex rounded-lg bg-gray-100 p-1 dark:bg-white/5 backdrop-blur-sm border border-gray-200 dark:border-white/10">
+          <div className="inline-flex rounded-lg bg-gray-100 p-1 dark:bg-slate-800/60 backdrop-blur-sm border border-gray-200 dark:border-slate-700/40">
             <button
               onClick={() => { setActiveTab('my'); setSelectedCategory('ALL'); setPage(0) }}
               className={`inline-flex items-center gap-2 px-6 py-2 rounded-lg font-semibold transition-all text-sm sm:text-base ${

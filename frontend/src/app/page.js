@@ -199,8 +199,8 @@ export default function Home() {
         <div className="max-w-4xl mx-auto">
           <div className="bg-gradient-to-r from-purple-600 to-pink-600 rounded-3xl p-16 md:p-20 shadow-2xl text-center text-white relative overflow-hidden">
             {/* Decorative elements */}
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 rounded-full -mr-32 -mt-32"></div>
-            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 rounded-full -ml-32 -mb-32"></div>
+            <div className="absolute top-0 right-0 w-64 h-64 bg-white/10 dark:bg-slate-800/20 rounded-full -mr-32 -mt-32"></div>
+            <div className="absolute bottom-0 left-0 w-64 h-64 bg-white/10 dark:bg-slate-800/20 rounded-full -ml-32 -mb-32"></div>
             
             <div className="relative">
               <blockquote className="text-3xl md:text-4xl font-light mb-8 leading-relaxed italic">

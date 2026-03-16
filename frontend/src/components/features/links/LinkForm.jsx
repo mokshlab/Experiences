@@ -75,7 +75,7 @@ export default function LinkForm({ link = null }) {
 
   return (
     <form onSubmit={handleSubmit} className="space-y-6">
-      <div className="bg-white dark:bg-white/5 backdrop-blur-sm rounded-2xl p-8 border border-gray-200 dark:border-white/10 shadow-sm">
+      <div className="bg-white dark:bg-slate-900 backdrop-blur-sm rounded-2xl p-8 border border-gray-200 dark:border-slate-700 shadow-sm">
         {/* Link Name */}
         <div className="mb-6">
           <label htmlFor="name" className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">
@@ -87,7 +87,7 @@ export default function LinkForm({ link = null }) {
             value={formData.name}
             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
             placeholder="e.g., Career Pathway, Fitness Evolution, Growth Journey"
-            className="w-full px-4 py-3 bg-gray-50 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-4 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
           {errors.name && (
             <p className="text-red-400 text-sm mt-1">{errors.name}</p>
@@ -105,7 +105,7 @@ export default function LinkForm({ link = null }) {
             onChange={(e) => setFormData({ ...formData, description: e.target.value })}
             placeholder="How these experiences connect like neural pathways..."
             rows={4}
-            className="w-full px-4 py-3 bg-gray-50 dark:bg-white/10 border border-gray-300 dark:border-white/20 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
+            className="w-full px-4 py-3 bg-gray-50 dark:bg-slate-800 border border-gray-300 dark:border-slate-700 rounded-xl text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-purple-500"
           />
         </div>
 
@@ -173,7 +173,7 @@ export default function LinkForm({ link = null }) {
           type="button"
           onClick={() => router.back()}
           disabled={isSubmitting}
-          className="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-white/5 dark:hover:bg-white/10 text-gray-700 dark:text-white rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
+          className="px-6 py-3 bg-gray-100 hover:bg-gray-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-gray-700 dark:text-white rounded-xl font-semibold transition-all disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <FiX className="w-5 h-5 inline mr-2" />
           Cancel
