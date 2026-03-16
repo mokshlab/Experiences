@@ -69,10 +69,18 @@ export const getExperience = async (req, res, next) => {
 
 export const createExperience = async (req, res, next) => {
   try {
+    // Debug info to help trace creation failures in production
+    console.info('[createExperience] incoming request', {
+      origin: req.headers.origin || req.headers.host,
+      user: req.user ? { id: req.user.id } : null,
+      bodyKeys: Object.keys(req.body || {}),
+    })
+
     const userId = req.user.id
-    const { title, content, date, category, isPublic, tags, mood, location } = req.body
+    const { title, content, date, category, isPublic, tags, mood, location } = req.body || {}
 
     if (!title || !content || !category) {
+      console.warn('[createExperience] validation failed - missing fields', { title, content, category })
       return res.status(400).json({ message: 'Missing required fields' })
     }
 
